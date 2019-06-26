@@ -1,0 +1,36 @@
+<ion-header> </ion-header>
+
+<ion-content>
+  <ion-button
+    (click)="close()"
+    fill="clear"
+    size="small"
+    color="primary"
+    style="margin: 16px;margin-top: 10%;"
+    >Back</ion-button
+  >
+  <ion-card-title style="margin-left: 16px;">Signup to MyVideos</ion-card-title>
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Email</ion-label>
+    <ion-input type="email" [(ngModel)]="email"></ion-input>
+  </ion-item>
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Name</ion-label>
+    <ion-input [(ngModel)]="name"></ion-input>
+  </ion-item>
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Surname</ion-label>
+    <ion-input [(ngModel)]="surname"></ion-input>
+  </ion-item>
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Password</ion-label>
+    <ion-input type="password" [(ngModel)]="password"></ion-input>
+  </ion-item>
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Confirm Password</ion-label>
+    <ion-input type="password" [(ngModel)]="validationPassword"></ion-input>
+  </ion-item>
+  <ion-button (click)="signup()" expand="block" style="margin: 16px;"
+    >Signup</ion-button
+  >
+</ion-content>

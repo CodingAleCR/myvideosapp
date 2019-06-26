@@ -3,7 +3,8 @@ import { OverlayEventDetail } from "@ionic/core";
 import {
   ActionSheetController,
   AlertController,
-  ModalController
+  ModalController,
+  LoadingController
 } from "@ionic/angular";
 import { CameraOptions, Camera } from "@ionic-native/camera/ngx";
 import { VideoEditorPage } from "../video-editor/video-editor.page";
@@ -22,6 +23,7 @@ export class MyVideosPage implements OnInit {
   private myVideos: Video[] = [];
 
   constructor(
+    private loadingController: LoadingController,
     private camera: Camera,
     private videos: VideosService,
     private modalCtrl: ModalController,
@@ -140,11 +142,19 @@ export class MyVideosPage implements OnInit {
 
   searchVideos(evt?) {
     console.log("[MyVideosPage] searchVideos()");
-    let query = evt ? evt.target.value.trim() : this.query;
-    this.videos.findVideos(query).then(videos => {
-      this.myVideos = videos;
-      this.changes.detectChanges();
-    });
+    this.loadingController
+      .create({
+        message: "Loading videos..."
+      })
+      .then(loading => {
+        loading.present();
+        let query = evt ? evt.target.value.trim() : this.query;
+        this.videos.findVideos(query).then(videos => {
+          this.myVideos = videos;
+          this.changes.detectChanges();
+          loading.dismiss();
+        });
+      });
   }
 
   enterVideo() {
@@ -199,31 +209,50 @@ export class MyVideosPage implements OnInit {
 
   addVideo(url: string) {
     console.log(`[MyVideosPage] addVideo(${url})`);
-    this.readVideoInfo(url)
-      .then(video => {
-        this.modalCtrl
-          .create({
-            component: VideoEditorPage,
-            componentProps: { mode: "add", video: video }
-          })
-          .then(modal => {
-            modal.onDidDismiss().then((evt: OverlayEventDetail) => {
-              if (evt && evt.data) {
-                this.videos.addVideo(evt.data).then(() => this.searchVideos());
-              }
-            });
-            modal.present();
-          });
+    this.loadingController
+      .create({
+        message: "Looking for video..."
       })
-      .catch(err => {
-        // Handle error
-        this.alertCtrl
-          .create({
-            header: "Error",
-            message: "ERROR reading video info: " + JSON.stringify(err),
-            buttons: ["OK"]
+      .then(loading => {
+        loading.present();
+        this.readVideoInfo(url)
+          .then(video => {
+            loading.dismiss();
+            this.modalCtrl
+              .create({
+                component: VideoEditorPage,
+                componentProps: { mode: "add", video: video }
+              })
+              .then(modal => {
+                modal.onDidDismiss().then((evt: OverlayEventDetail) => {
+                  if (evt && evt.data) {
+                    this.loadingController
+                      .create({
+                        message: "Adding video..."
+                      })
+                      .then(loading => {
+                        loading.present();
+                        this.videos.addVideo(evt.data).then(() => {
+                          loading.dismiss();
+                          this.searchVideos();
+                        });
+                      });
+                  }
+                });
+                modal.present();
+              });
           })
-          .then(alert => alert.present());
+          .catch(err => {
+            loading.dismiss();
+            // Handle error
+            this.alertCtrl
+              .create({
+                header: "Error",
+                message: "ERROR reading video info: " + JSON.stringify(err),
+                buttons: ["OK"]
+              })
+              .then(alert => alert.present());
+          });
       });
   }
 
@@ -250,8 +279,8 @@ export class MyVideosPage implements OnInit {
         // - capture thumbnail
         try {
           let canvas = document.createElement("canvas");
-          canvas.height = videoNode.videoHeight;
-          canvas.width = videoNode.videoWidth;
+          canvas.height = 180;
+          canvas.width = 320;
           var ctx = canvas.getContext("2d");
           ctx.drawImage(videoNode, 0, 0, canvas.width, canvas.height);
           video.thumbnail = {

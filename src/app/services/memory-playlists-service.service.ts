@@ -3,7 +3,7 @@ import { PlaylistsService } from "./playlists.service";
 import { Playlist } from "../models/playlist";
 import { Video } from "../models/video";
 import { YoutubeVideosService } from "./youtube-videos.service";
-import { VideosService } from "./videos.service";
+import { MemoryVideosService } from './memory-videos-service.service';
 
 @Injectable({
   providedIn: "root"
@@ -15,7 +15,7 @@ export class MemoryPlaylistsService extends PlaylistsService {
 
   constructor(
     private youtubeService: YoutubeVideosService,
-    private memoryService: VideosService
+    private memoryService: MemoryVideosService
   ) {
     super();
   }

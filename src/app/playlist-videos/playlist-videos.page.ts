@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from "@angular/core";
 import { Playlist } from "../models/playlist";
 import { Video } from "../models/video";
-import { ModalController } from "@ionic/angular";
+import { ModalController, LoadingController } from "@ionic/angular";
 import { PlaylistsService } from "../services/playlists.service";
 
 @Component({
@@ -16,6 +16,7 @@ export class PlaylistVideosPage implements OnInit {
   private myVideos: Video[] = [];
 
   constructor(
+    private loadingController: LoadingController,
     private playlists: PlaylistsService,
     private modalCtrl: ModalController,
     private changes: ChangeDetectorRef
@@ -28,16 +29,24 @@ export class PlaylistVideosPage implements OnInit {
 
   fetchPlaylistVideos() {
     console.log("[PlaylistVideosPage] fetchPlaylistVideos()");
-    this.playlists.listVideos(this.playlist.id).then(videos => {
-      this.myVideos = videos;
-      this.changes.detectChanges();
-    });
+    this.loadingController
+      .create({
+        message: "Loading videos..."
+      })
+      .then(loading => {
+        loading.present();
+        this.playlists.listVideos(this.playlist.id).then(videos => {
+          this.myVideos = videos;
+          this.changes.detectChanges();
+          loading.dismiss();
+        });
+      });
   }
 
   reorderVideos(ev: any) {
     // Before complete is called with the items they will remain in the
     // order before the drag
-    console.log('Before complete', this.myVideos);
+    console.log("Before complete", this.myVideos);
 
     // Finish the reorder and position the item in the DOM based on
     // where the gesture ended. Update the myVideos variable to the
@@ -45,7 +54,7 @@ export class PlaylistVideosPage implements OnInit {
     this.myVideos = ev.detail.complete(this.myVideos);
 
     // After complete is called the myVideos will be in the new order
-    console.log('After complete', this.myVideos);
+    console.log("After complete", this.myVideos);
 
     this.playlists.updateVideos(this.playlist.id, this.myVideos);
   }

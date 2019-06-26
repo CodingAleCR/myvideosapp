@@ -23,6 +23,12 @@ import { PlaylistEditorPageModule } from "./playlist-editor/playlist-editor.modu
 import { PlaylistsSelectorPageModule } from "./playlists-selector/playlists-selector.module";
 import { PlaylistVideosPageModule } from "./playlist-videos/playlist-videos.module";
 import { PlaylistPlayerPageModule } from "./playlist-player/playlist-player.module";
+import { UserService } from "./services/user.service";
+import { LoginPageModule } from "./login/login.module";
+import { SignupPageModule } from "./signup/signup.module";
+import { UserEditorPageModule } from "./user-editor/user-editor.module";
+import { RESTPlaylistsService } from './services/restplaylists.service';
+import { RESTVideosService } from './services/restvideos.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -37,15 +43,21 @@ import { PlaylistPlayerPageModule } from "./playlist-player/playlist-player.modu
     PlaylistEditorPageModule,
     PlaylistsSelectorPageModule,
     PlaylistVideosPageModule,
-    PlaylistPlayerPageModule
+    PlaylistPlayerPageModule,
+    LoginPageModule,
+    SignupPageModule,
+    UserEditorPageModule
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: VideosService, useClass: MemoryVideosService },
+    { provide: VideosService, useClass: RESTVideosService },
     YoutubeVideosService,
-    { provide: PlaylistsService, useClass: MemoryPlaylistsService },
+    { provide: PlaylistsService, useClass: RESTPlaylistsService },
+    UserService,
+    MemoryVideosService,
+    MemoryPlaylistsService,
     Camera
   ],
   bootstrap: [AppComponent]

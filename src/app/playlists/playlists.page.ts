@@ -5,7 +5,8 @@ import {
   ActionSheetController,
   ModalController,
   AlertController,
-  ToastController
+  ToastController,
+  LoadingController
 } from "@ionic/angular";
 import { PlaylistEditorPage } from "../playlist-editor/playlist-editor.page";
 import { OverlayEventDetail } from "@ionic/core";
@@ -21,6 +22,7 @@ export class PlaylistsPage implements OnInit {
   private myPlaylists: Playlist[];
 
   constructor(
+    private loadingController: LoadingController,
     private playlists: PlaylistsService,
     private modalCtrl: ModalController,
     private alertCtrl: AlertController,
@@ -37,10 +39,18 @@ export class PlaylistsPage implements OnInit {
 
   fetchPlaylists() {
     console.log("[PlaylistsPage] fetchPlaylists()");
-    this.playlists.findPlaylists().then(playlists => {
-      this.myPlaylists = playlists;
-      this.changes.detectChanges();
-    });
+    this.loadingController
+      .create({
+        message: "Loading playlists..."
+      })
+      .then(loading => {
+        loading.present();
+        this.playlists.findPlaylists().then(playlists => {
+          this.myPlaylists = playlists;
+          this.changes.detectChanges();
+          loading.dismiss();
+        });
+      });
   }
 
   addPlaylist() {
@@ -60,9 +70,17 @@ export class PlaylistsPage implements OnInit {
       .then(modal => {
         modal.onDidDismiss().then((evt: OverlayEventDetail) => {
           if (evt && evt.data) {
-            this.playlists
-              .addPlaylist(evt.data)
-              .then(() => this.fetchPlaylists());
+            this.loadingController
+              .create({
+                message: "Adding playlist..."
+              })
+              .then(loading => {
+                loading.present();
+                this.playlists.addPlaylist(evt.data).then(() => {
+                  loading.dismiss();
+                  this.fetchPlaylists();
+                });
+              });
           }
         });
         modal.present();

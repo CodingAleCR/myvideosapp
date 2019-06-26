@@ -1,0 +1,22 @@
+<ion-header> </ion-header>
+
+<ion-content>
+  <ion-card-title style="margin-top: 15%; margin-left: 16px"
+    >Login to MyVideos</ion-card-title
+  >
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Email</ion-label>
+    <ion-input [(ngModel)]="email"></ion-input>
+  </ion-item>
+  <ion-item style="margin: 16px;">
+    <ion-label position="floating">Password</ion-label>
+    <ion-input type="password" [(ngModel)]="password"></ion-input>
+  </ion-item>
+  <ion-button (click)="login()" expand="block" style="margin: 16px;">Login</ion-button>
+  <ion-text color="medium">
+    <h6 style="text-align: center">- OR -</h6>
+  </ion-text>
+  <ion-button routerLink="/signup" color="warning" expand="block" style="margin: 16px;" r
+    >Signup</ion-button
+  >
+</ion-content>
